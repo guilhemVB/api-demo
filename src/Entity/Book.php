@@ -3,10 +3,17 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource
+ * @ApiResource(
+ *     normalizationContext={"groups"={"book_read", "editor_read"}},
+ *     denormalizationContext={"groups"={"book_write"}}
+ * )
  * @ORM\Entity
  */
 class Book
@@ -16,20 +23,23 @@ class Book
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"book_read"})
      */
     private $id;
 
     /**
-     * @var string
      * @ORM\Column(type="string", length=255, nullable=false)
+     * @Assert\NotBlank
+     * @Assert\Length(max=255)
+     * @Groups({"book_read", "book_write"})
      */
     private $title;
 
     /**
-     * @var Editor
-     *
      * @ORM\ManyToOne(targetEntity="Editor", inversedBy="books")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull
+     * @Groups({"book_read", "book_write"})
      */
     private $editor;
 
